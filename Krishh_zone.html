@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FUTURETECH AI | Secure Access</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: white; font-family: 'Orbitron', 'Segoe UI', sans-serif; overflow: hidden; }
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+#login-screen {
+  position: fixed; width: 100%; height: 100%; background: #000; z-index: 10000;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.grid-bg {
+  position: absolute; width: 200%; height: 200%;
+  background-image: linear-gradient(rgba(0,240,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,240,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px; animation: gridMove 20s linear infinite;
+  perspective: 1000px; transform: rotateX(60deg);
+}
+@keyframes gridMove { 0%{transform: rotateX(60deg) translateY(0);} 100%{transform: rotateX(60deg) translateY(50px);} }
+.holo-orb { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(0,240,255,0.15) 0%, transparent 70%); box-shadow: 0 0 100px rgba(0,240,255,0.4); animation: orbPulse 3s ease-in-out infinite; }
+@keyframes orbPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+.scan-ring { position: absolute; width: 600px; height: 600px; border: 2px solid rgba(0,240,255,0.3); border-radius: 50%; animation: scanRotate 8s linear infinite; }
+@keyframes scanRotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+.login-box {
+  position: relative; z-index: 2; width: 500px; padding: 60px 50px;
+  background: rgba(0, 20, 40, 0.4); border: 1px solid rgba(0,240,255,0.4);
+  border-radius: 20px; backdrop-filter: blur(25px);
+  box-shadow: 0 0 80px rgba(0,240,255,0.3), inset 0 0 40px rgba(0,240,255,0.1);
+  text-align: center; animation: fadeIn 1.5s;
+}
+@keyframes fadeIn { from{opacity:0; transform:scale(0.9);} to{opacity:1; transform:scale(1);} }
+
+.login-logo { font-size: 2.8rem; color: #00f0ff; font-weight: 900; margin-bottom: 5px; text-shadow: 0 0 20px #00f0ff; letter-spacing: 4px; }
+.login-sub { color: #00f0ff; margin-bottom: 40px; font-size: 0.9rem; letter-spacing: 2px; opacity: 0.8; }
+.login-input {
+  width: 100%; padding: 18px 20px; background: rgba(0,240,255,0.05);
+  border: 1px solid rgba(0,240,255,0.3); border-radius: 12px;
+  color: #00f0ff; font-size: 1.1rem; outline: none; font-family: 'Orbitron'; margin-bottom: 25px;
+}
+.login-input:focus { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0,240,255,0.5); background: rgba(0,240,255,0.1); }
+.login-input::placeholder { color: rgba(0,240,255,0.5); }
+
+.login-btn {
+  width: 100%; padding: 18px; background: linear-gradient(45deg, #00f0ff, #0088ff);
+  border: none; border-radius: 12px; color: #000; font-size: 1.2rem; font-weight: 900;
+  cursor: pointer; transition: 0.3s; font-family: 'Orbitron'; letter-spacing: 2px;
+  box-shadow: 0 0 40px rgba(0,240,255,0.4);
+}
+.login-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(0,240,255,0.7); }
+.error-msg { color: #ff0044; font-size: 0.9rem; margin-top: 15px; display: none; text-shadow: 0 0 10px #ff0044; }
+
+#loader { position: fixed; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; }
+.loader-text { font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 20px #00f0ff; animation: glow 1.5s infinite; letter-spacing: 5px; font-weight: 900; }
+.loader-sub { color: #00f0ff; margin-top: 10px; font-size: 1rem; letter-spacing: 2px; }
+.loader-bar { width: 500px; height: 3px; background: rgba(0,240,255,0.2); margin-top: 30px; overflow: hidden; }
+.loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #00f0ff, #0088ff); animation: load 2s forwards; box-shadow: 0 0 20px #00f0ff; }
+@keyframes glow { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+@keyframes load { to { width: 100%; } }
+
+.page { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; transition: transform 1s cubic-bezier(0.77,0,0.175,1); }
+#home { z-index: 2; }
+#products-page { z-index: 1; transform: translateY(100%); background: radial-gradient(ellipse at center, #0a0a2a 0%, #000 100%); overflow-y: auto; }
+.show-products #home { transform: translateY(-100%); }
+.show-products #products-page { transform: translateY(0); }
+.hero { position: relative; height: 100vh; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden; }
+#ai-bg { position: absolute; width: 100%; height: 100%; opacity: 0.4; }
+.ai-orb { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(0,240,255,0.3) 0%, transparent 70%); animation: orbFloat 6s ease-in-out infinite; box-shadow: 0 0 100px rgba(0,240,255,0.5); }
+@keyframes orbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+.scan-line { position: absolute; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #00f0ff, transparent); animation: scan 3s linear infinite; opacity: 0.5; }
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+.glass-card { position: relative; z-index: 2; text-align: center; padding: 60px 70px; background: rgba(0, 240, 255, 0.02); border: 1px solid rgba(0, 240, 255, 0.15); backdrop-filter: blur(30px); border-radius: 25px; box-shadow: 0 0 80px rgba(0, 240, 255, 0.2); }
+.glass-card h1 { font-size: 3.8rem; color: #00f0ff; text-shadow: 0 0 20px #00f0ff; margin-bottom: 10px; font-weight: 900; letter-spacing: 3px; }
+#typing-text { color: #aaa; margin-bottom: 35px; font-size: 1.2rem; min-height: 25px; border-right: 2px solid #00f0ff; display: inline-block; padding-right: 5px; }
+.holo-btn { padding: 18px 60px; background: linear-gradient(45deg, #00f0ff, #0088ff); border: none; color: #000; font-size: 1.1rem; font-weight: 900; cursor: pointer; transition: 0.4s; border-radius: 10px; box-shadow: 0 0 30px rgba(0,240,255,0.5); font-family: 'Orbitron'; letter-spacing: 1px; }
+.holo-btn:hover { transform: scale(1.08); box-shadow: 0 0 50px rgba(0,240,255,0.8); }
+
+.products { padding: 60px 20px; max-width: 1300px; margin: 0 auto; }
+.nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,240,255,0.2); }
+.nav-bar h2 { color: #00f0ff; font-size: 2rem; text-shadow: 0 0 10px #00f0ff; font-weight: 900; }
+.back-btn { padding: 10px 25px; background: transparent; border: 1px solid #00f0ff; color: #00f0ff; cursor: pointer; border-radius: 5px; transition: 0.3s; font-family: 'Orbitron'; }
+.back-btn:hover { background: #00f0ff; color: #000; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.product-card { background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 15px; padding: 20px; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; }
+.product-card::before { content: 'ORDER ON WHATSAPP →'; position: absolute; bottom: -40px; left: 0; width: 100%; background: #00f0ff; color: #000; text-align: center; padding: 10px; font-weight: 900; transition: 0.3s; }
+.product-card:hover::before { bottom: 0; }
+.product-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 0 40px rgba(0, 240, 255, 0.4); border-color: #00f0ff; }
+.product-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; background: #111; }
+.product-card h3 { color: #00f0ff; margin-bottom: 10px; }
+.product-card p { color: #aaa; font-size: 0.9rem; margin-bottom: 15px; }
+.price { font-size: 1.4rem; color: #fff; font-weight: 900; margin-top: 10px; }
+
+.chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: linear-gradient(45deg, #00f0ff, #0088ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 30px rgba(0,240,255,0.6); z-index: 999; }
+.chat-btn svg { width: 30px; height: 30px; fill: #000; }
+.chat-box { position: fixed; bottom: 100px; right: 30px; width: 380px; height: 500px; background: rgba(0, 10, 20, 0.95); border: 1px solid rgba(0,240,255,0.3); border-radius: 15px; backdrop-filter: blur(20px); display: none; flex-direction: column; z-index: 999; }
+.chat-header { padding: 15px; background: rgba(0,240,255,0.1); border-bottom: 1px solid rgba(0,240,255,0.2); display: flex; justify-content: space-between; align-items: center; }
+.chat-header h3 { color: #00f0ff; font-family: 'Orbitron'; }
+.close-chat { cursor: pointer; font-size: 20px; color: #00f0ff; }
+.chat-messages { flex: 1; padding: 15px; overflow-y: auto; }
+.msg { margin-bottom: 12px; padding: 10px 15px; border-radius: 10px; max-width: 85%; font-size: 0.9rem; }
+.bot-msg { background: rgba(0,240,255,0.1); color: #00f0ff; }
+.user-msg { background: #00f0ff; color: #000; margin-left: auto; }
+.chat-input { display: flex; padding: 10px; border-top: 1px solid rgba(0,240,255,0.2); }
+.chat-input input { flex: 1; background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.2); border-radius: 8px; padding: 10px; color: white; outline: none; }
+.chat-input button { margin-left: 8px; padding: 10px 15px; background: #00f0ff; border: none; border-radius: 8px; color: #000; cursor: pointer; font-weight: 900; }
+</style>
+</head>
+<body>
+
+<!-- FUTURISTIC LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="grid-bg"></div>
+  <div class="holo-orb"></div>
+  <div class="scan-ring"></div>
+
+  <div class="login-box">
+    <div class="login-logo">FUTURETECH AI</div>
+    <div class="login-sub">SECURE ADMIN ACCESS</div>
+    <input type="tel" id="adminNumber" class="login-input" placeholder="ENTER ADMIN NUMBER" maxlength="10">
+    <button class="login-btn" onclick="verifyLogin()">INITIALIZE SYSTEM</button>
+    <div class="error-msg" id="errorMsg">ACCESS DENIED: UNAUTHORIZED NUMBER</div>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-text">SYSTEM BOOTING</div>
+  <div class="loader-sub">LOADING QUANTUM CORE...</div>
+  <div class="loader-bar"><div class="loader-progress"></div></div>
+</div>
+
+<!-- PAGE 1: HOME -->
+<section class="page" id="home">
+  <div class="hero">
+    <canvas id="ai-bg"></canvas>
+    <div class="scan-line"></div>
+    <div class="ai-orb"></div>
+    <div class="glass-card">
+      <h1>FUTURETECH AI</h1>
+      <div id="typing-text"></div>
+      <button class="holo-btn" onclick="showProducts()">EXPLORE COLLECTION</button>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2: PRODUCTS -->
+<section class="page" id="products-page">
+  <div class="products">
+    <div class="nav-bar">
+      <h2>TECH COLLECTION</h2>
+      <button class="back-btn" onclick="showHome()">← BACK TO HOME</button>
+    </div>
+    <div class="product-grid">
+      <div class="product-card" onclick="orderWhatsApp('Quantum Smart Watch', '8999')"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500"><h3>Quantum Smart Watch</h3><p>Health tracking + Hologram calls + 7 day battery + AMOLED</p><div class="price">₹8,999</div></div>
+      <div class="product-card" onclick="orderWhatsApp('Nebula VR Headset', '24999')"><img src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=500"><h3>Nebula VR Headset</h3><p>4K Resolution + Zero lag + 360 experience + Hand tracking</p><div class="price">₹24,999</div></div>
+      <div class="product-card" onclick="orderWhatsApp('SkyHunter Drone', '18499')"><img src="https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?w=500"><h3>SkyHunter Drone</h3><p>4K Camera + 30min flight + Auto follow + Obstacle Avoid</p><div class="price">₹18,499</div></div>
+      <div class="product-card" onclick="orderWhatsApp('Neural Sound Headphones', '12499')"><img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500"><h3>Neural Sound Headphones</h3><p>Active Noise Cancel + 50hr Battery + Spatial Audio</p><div class="price">₹12,499</div></div>
+      <div class="product-card" onclick="orderWhatsApp('CyberCore Gaming Laptop', '129999')"><img src="https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500"><h3>CyberCore Gaming Laptop</h3><p>RTX 4070 + 16GB RAM + 165Hz Display + RGB</p><div class="price">₹1,29,999</div></div>
+      <div class="product-card" onclick="orderWhatsApp('Photon Pro Earbuds', '4999')"><img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500"><h3>Photon Pro Earbuds</h3><p>ANC + Low Latency + Wireless Charging + IPX7</p><div class="price">₹4,999</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI CHATBOT -->
+<div class="chat-btn" onclick="toggleChat()"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2.9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+<div class="chat-box" id="chatBox">
+  <div class="chat-header"><h3>FUTURETECH AI</h3><span class="close-chat" onclick="toggleChat()">×</span></div>
+  <div class="chat-messages" id="chatMessages"><div class="msg bot-msg">SYSTEM ONLINE. HOW CAN I ASSIST?</div></div>
+  <div class="chat-input"><input type="text" id="chatInput" placeholder="QUERY..." onkeypress="if(event.key==='Enter') sendMsg()"><button onclick="sendMsg()">SEND</button></div>
+</div>
+
+<script>
+// LOCKED NUMBER - SIRF ISSE HI KHAULEGI
+const ALLOWED_NUMBER = "8208810255";
+
+let adminNumber = "";
+
+// LOGIN VERIFICATION
+function verifyLogin() {
+  const num = document.getElementById('adminNumber').value;
+
+  if(num === ALLOWED_NUMBER) {
+    adminNumber = "91" + num; // WhatsApp ke liye
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('loader').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('loader').style.display='none';
+    }, 2000);
+  } else {
+    document.getElementById('errorMsg').style.display = 'block';
+    setTimeout(()=>{ document.getElementById('errorMsg').style.display = 'none'; }, 3000);
+  }
+}
+
+// Page Switch
+function showProducts() { document.body.classList.add('show-products'); }
+function showHome() { document.body.classList.remove('show-products'); }
+
+// WHATSAPP ORDER - SEEDHA TERE NUMBER PE JAYEGA
+function orderWhatsApp(productName, price) {
+  const message = `Hi! I want to order: ${productName} for ₹${price}. Please share details.`;
+  const url = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+// AI TYPING
+const texts = ["QUANTUM TECHNOLOGY", "NEURAL INTERFACE", "FUTURE IS NOW"];
+let textIndex = 0, charIndex = 0;
+function typeWriter() { if(charIndex < texts[textIndex].length) { document.getElementById("typing-text").innerHTML += texts[textIndex].charAt(charIndex); charIndex++; setTimeout(typeWriter, 100); } else { setTimeout(eraseText, 2000); } }
+function eraseText() { if(charIndex > 0) { document.getElementById("typing-text").innerHTML = texts[textIndex].substring(0, charIndex-1); charIndex--; setTimeout(eraseText, 50); } else { textIndex = (textIndex + 1) % texts.length; setTimeout(typeWriter, 500); } }
+setTimeout(typeWriter, 2500);
+
+// AI BACKGROUND
+const canvas = document.getElementById('ai-bg'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+let particles = []; for(let i=0; i<50; i++) { particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5 }); }
+function drawAI() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.strokeStyle = 'rgba(0,240,255,0.2)'; for(let i=0; i<particles.length; i++) { for(let j=i+1; j<particles.length; j++) { let dx = particles[i].x - particles[j].x; let dy = particles[i].y - particles[j].y; let dist = Math.sqrt(dx*dx + dy*dy); if(dist < 150) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); } } }
+ctx.fillStyle = '#00f0ff'; particles.forEach(p => { p.x += p.vx; p.y += p.vy; if(p.x<0 || p.x>canvas.width) p.vx*=-1; if(p.y<0 || p.y>canvas.height) p.vy*=-1; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill(); }); requestAnimationFrame(drawAI); }
+drawAI();
+
+// SMART CHATBOT
+function toggleChat() { const chat = document.getElementById('chatBox'); chat.style.display = chat.style.display === 'flex'? 'none' : 'flex'; }
+function sendMsg() { const input = document.getElementById('chatInput'); const msg = input.value.trim(); if(msg === '') return; addMsg(msg, 'user-msg'); input.value = ''; setTimeout(() => { let reply = getSmartReply(msg.toLowerCase()); addMsg(reply, 'bot-msg'); }, 600); }
+function addMsg(text, className) { const chatMessages = document.getElementById('chatMessages'); const div = document.createElement('div'); div.className = `msg ${className}`; div.innerHTML = text; chatMessages.appendChild(div); chatMessages.scrollTop = chatMessages.scrollHeight; }
+function getSmartReply(msg) {
+  if(msg.includes('hi')) return "SYSTEM ONLINE. HOW MAY I ASSIST?";
+  if(msg.includes('product')) return "6 QUANTUM DEVICES AVAILABLE IN COLLECTION.";
+  return "QUERY RECEIVED. ANALYZING...";
+}
+</script>
+
+</body>
+</html>
